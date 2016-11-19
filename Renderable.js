@@ -403,7 +403,7 @@ var UnitSquare = function(gl,shader)
     this.renderable.vertices.push([-0.5, 0.5]);
     this.renderable.vertices.push([ 0.5, 0.5]); 
     this.renderable.updateBuffers();    
-    this.renderable.color = [1.0,1.0,1.0,1.0]; 
+    this.renderable.color.set([1.0,1.0,1.0,1.0]); 
 };
 UnitSquare.prototype = Object.create(Shape.prototype);
 

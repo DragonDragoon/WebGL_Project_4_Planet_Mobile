@@ -114,14 +114,7 @@ function main() {
             
             // Student Note: remove this line once you get orbiting animation working
             animation_test1(renderables,delta);
-            
-            for(i=0;i<spinners.length;i++)
-            {
-                spinners[i].orientation += spinners[i].velocity * delta/10;
-                if (spinners[i].orientation > 360)
-                    spinners[i].orientation -= 360;
-            }
-            
+
             drawFrame(gl,renderables);  
             
             
@@ -135,7 +128,7 @@ function main() {
     requestAnimationFrame(repaint);
 }
 
-var spinners = new Array();
+
 
 /*****
  * 
