@@ -10,13 +10,29 @@
 
 /*
  * test equality of 2 floating point numbers
- * @param {Number} a
- * @param {Number} b
+ * @param {Number} a - double
+ * @param {Number} b - double (default Number)
  * @returns {Function|equal.Mat3}
  */
 function equal(a,b)
 {    
     return Math.abs(a-b)< Number.EPSILON;
+}
+
+/*
+ * test equality of a 32 bit float and 64 bit float
+ * @param {Number} a - 32 bit float
+ * @param {Number} b - 64 bit float
+ * @returns {Function|equal.Mat3}
+ */
+function equalfd(a,b)
+{        
+    // \todo [Wartell] find better way to do this ... 
+    /* AFIK - Javascript lacks a 32bit float EPISLON
+            - JS seems to lack any proper float to double conversion
+    */
+    var stupid = new Float32Array([b]); 
+    return Math.abs(a-stupid[0])< Number.EPSILON;
 }
 
 /**
@@ -706,34 +722,29 @@ function math2d_test()
     v0.y += 1.0;
     v2 = new Vec2(v0);
     v2.add(v1);
-    /*
     console.assert(v2.x === 6 && v2.y === 8);
-    */
     
     vx.multiply(M1);       
     vy.multiply(M1);  
-    /*
-    console.assert(equal(vy.x,-0.707107) && equal (vy.y,0.707107) &&
-                   equal(vx.x, 0.707107) && equal (vx.y,0.707107));
-    */
-    
+           
+    console.assert(equalfd(vy.x,-Math.sin(rad)) && equalfd (vy.y,Math.cos(rad)) &&
+                   equalfd(vx.x, Math.cos(rad)) && equalfd (vx.y,Math.sin(rad)));
+     
     po_h.x = 0; po_h.y = 0; po_h.w = 1;
     
     vx_h.multiply(M2);
     vy_h.multiply(M2);
     po_h.multiply(M2);    
-    /*
-    console.assert(equal(vy_h.x,-0.707107) && equal (vy_h.y,0.707107) &&
-                   equal(vx_h.x, 0.707107) && equal (vx_h.y,0.707107));    
-    */
+    console.assert(equalfd(vy_h.x,-Math.sin(rad)) && equalfd (vy_h.y,Math.cos(rad)) &&
+                   equalfd(vx_h.x, Math.cos(rad)) && equalfd (vx_h.y,Math.sin(rad)));    
     
     var M3 = new Mat3();
     M3.setTranslate([10.0,15.0]);
     M3.translate([5.0,5.0]);
     po_h.multiply(M3);
-    /*
-    console.assert(equal(po_h.x,15) && equal (po_h.y,20);
-    */
+    
+    console.assert(equalfd(po_h.x,15) && equalfd (po_h.y,20));
+  
    
    
     var M4 = new Mat3(), M5 = new Mat3();
