@@ -44,7 +44,7 @@ var TestStack = function(shader)
  */
 TestStack.prototype.render = function ()
 {    
-    switch(1)
+    switch(2)
     {
         case 1:
             /* test 1: Tests only the basic Mat3Stack functions that are provided with the skeleton code */

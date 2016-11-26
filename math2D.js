@@ -284,11 +284,12 @@ Mat3.prototype.leftScale = function (scale_factors) {
 Mat3.prototype.setRotate = function (angle) {
   /* Implemented */
   if (typeof angle == "number") {
+    angle = angle / 180 * Math.PI;
     this.array[0] = Math.cos(angle); this.array[3] = -Math.sin(angle); this.array[6] = 0.0;
     this.array[1] = Math.sin(angle); this.array[4] = Math.cos(angle);  this.array[7] = 0.0;
     this.array[2] = 0.0;             this.array[5] = 0.0;              this.array[8] = 1.0;
   } else {
-    throw new Error("Mat3.setRotate: Error: Argument not instance of Number.");
+    throw new Error("Mat3.setRotate: Error: Argument not a Number.");
   }
 };
 
@@ -303,13 +304,14 @@ Mat3.prototype.setRotate = function (angle) {
 Mat3.prototype.rotate = function (angle) {
   /* Implemented */
   if (typeof angle == "number") {
+    angle = angle / 180 * Math.PI;
     var M_t = new Mat3(
            [Math.cos(angle), -Math.sin(angle), 0.0,
             Math.sin(angle),  Math.cos(angle), 0.0,
             0.0,              0.0,             1.0]);
     return this.multiply(M_t);
   } else {
-    throw new Error("Mat3.rotate: Error: Argument not instance of Number.");
+    throw new Error("Mat3.rotate: Error: Argument not a Number.");
   }
 };
 
@@ -324,13 +326,14 @@ Mat3.prototype.rotate = function (angle) {
 Mat3.prototype.leftRotate = function (angle) {
   /* Implemented*/
   if (typeof angle == "number") {
+    angle = angle / 180 * Math.PI;
     var M_t = new Mat3(
            [Math.cos(angle), -Math.sin(angle), 0.0,
             Math.sin(angle),  Math.cos(angle), 0.0,
             0.0,              0.0,             1.0]);
     return this.leftMultiply(M_t);
   } else {
-    throw new Error("Mat3.leftRotate: Error: Argument not instance of Number.");
+    throw new Error("Mat3.leftRotate: Error: Argument not a Number.");
   }
 };
 
