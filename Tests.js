@@ -131,7 +131,7 @@ var selectables = new Array();
  */
 function CoordinateSystem_test1(renderables,shader,gl)
 {
-    window.rootCS = new CoordinateSystem();
+    var rootCS = new CoordinateSystem();
     var sqr = new UnitSquare(gl,shader);
     sqr.name = "sqr0";
     rootCS.add_shape(sqr);
@@ -178,6 +178,18 @@ function CoordinateSystem_test2(renderables,shader,gl)
     selectables.push(sqr2);
         
     renderables.push(rootCS);   
+}
+
+function UnitDisc_test(renderables, shader, gl) {
+  var rootCS = new CoordinateSystem();
+  var circ = new UnitDisc(gl, shader);
+  circ.name = "circ0";
+  rootCS.add_shape(circ);
+  rootCS.orientation = 0.0;
+  rootCS.scale.x = 1.0; rootCS.scale.y = 1.0;
+
+  renderables.push(rootCS);
+  selectables.push(circ);
 }
 
 
