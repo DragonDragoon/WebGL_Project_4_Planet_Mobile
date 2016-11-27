@@ -98,7 +98,7 @@ Mat3Stack.prototype.scale = function () {
     M = M.scale(arguments[0]);
     this.array[this.array.length - 1] = M;
   } else {
-    throw new Error("Mat3Stack.translate: Error: Argument not instance of Array.");
+    throw new Error("Mat3Stack.scale: Error: Argument not instance of Array.");
   }
 };
 
@@ -118,10 +118,26 @@ Mat3Stack.prototype.rotate = function () {
     M = M.rotate(arguments[0]);
     this.array[this.array.length - 1] = M;
   } else {
-    throw new Error("Mat3Stack.translate: Error: Argument not a Number.");
+    throw new Error("Mat3Stack.rotate: Error: Argument not a Number.");
   }
 };
 
 /* Student Note: You may add additional methods to Mat3Stack based on the classic OpenGL matrix stack API
  * as you see fit.
  */
+
+Mat3Stack.prototype.transform = function () {
+  /* \todo implement this */
+  if (this.array.length === 0) {
+    throw new Error("Mat3Stack: Empty");
+  }
+
+  if (arguments[0] instanceof Mat3) {
+    /* compute new top matrix */
+    var M = new Mat3(this.array[this.array.length - 1]);
+    M = M.multiply(arguments[0]);
+    this.array[this.array.length - 1] = M;
+  } else {
+    throw new Error("Mat3Stack.translate: Error: Argument not instance of Mat3.");
+  }
+};

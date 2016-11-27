@@ -131,7 +131,7 @@ var selectables = new Array();
  */
 function CoordinateSystem_test1(renderables,shader,gl)
 {
-    var rootCS = new CoordinateSystem();
+    window.rootCS = new CoordinateSystem();
     var sqr = new UnitSquare(gl,shader);
     sqr.name = "sqr0";
     rootCS.add_shape(sqr);

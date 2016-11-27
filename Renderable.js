@@ -28,8 +28,8 @@ var modelViewStack;
  * Constructor for Shader specific Exception
  * @returns {ShaderException}
  */
-function ShaderException() {   
-   this.name = "ShaderException";
+function ShaderException() {
+  this.name = "ShaderException";
 }
 
 /* @author Zachary Wartell
@@ -42,55 +42,54 @@ function ShaderException() {
  * @param {String} vshaderID - vertex shader source code's HTML Element ID
  * @param {String} fshaderID - fragment shader source code's HTML Element ID
  */
-var Shader = function(gl,vshaderID,fshaderID)
-{    
-    /*
-     *  create GLSL Program
-     */     
-    var vertElem = document.getElementById(vshaderID);
-    if (!vertElem) {
-        alert("Unable to load vertex shader " + vshaderID);
-        return false;
-    }
+var Shader = function (gl, vshaderID, fshaderID) {
+  /*
+   *  create GLSL Program
+   */
+  var vertElem = document.getElementById(vshaderID);
+  if (!vertElem) {
+    alert("Unable to load vertex shader " + vshaderID);
+    return false;
+  }
 
-    var fragElem = document.getElementById(fshaderID);
-    if (!fragElem) {
-        alert("Unable to load vertex shader " + fshaderID);
-        throw new ShaderException();        
-    }
+  var fragElem = document.getElementById(fshaderID);
+  if (!fragElem) {
+    alert("Unable to load vertex shader " + fshaderID);
+    throw new ShaderException();
+  }
 
-    this.program = createProgram(gl, vertElem.text, fragElem.text);
-    if (!this.program) {
-        alert('Failed to create program');
-        throw new ShaderException();
-    }
-    
-    /*
-     *  get GL shader variable locations
-     */ 
-    this.a_Position = gl.getAttribLocation(this.program, 'a_Position');
-    if (this.a_Position < 0) {
-        alert('Failed to get the storage location of a_Position');
-        throw new ShaderException();
-    }
-    
-    /*
-     *  This uniform is designed to be manipulated by a Mat3Stack Object, rather than
-     *  directly by methods in Shader or SimpleRenderable
-     */
-    this.u_modelView = gl.getUniformLocation(this.program, 'u_modelView');
-    if (this.u_modelView < 0) {
-        alert('Failed to get the storage location of u_modelView');
-        throw new ShaderException();
-    }    
+  this.program = createProgram(gl, vertElem.text, fragElem.text);
+  if (!this.program) {
+    alert('Failed to create program');
+    throw new ShaderException();
+  }
 
-    this.u_FragColor = gl.getUniformLocation(this.program, 'u_FragColor');
-    if (!this.u_FragColor) {
-        alert('Failed to get the storage location of u_FragColor');
-        throw new ShaderException();
-    }    
+  /*
+   *  get GL shader variable locations
+   */
+  this.a_Position = gl.getAttribLocation(this.program, 'a_Position');
+  if (this.a_Position < 0) {
+    alert('Failed to get the storage location of a_Position');
+    throw new ShaderException();
+  }
 
-    this.gl = gl;
+  /*
+   *  This uniform is designed to be manipulated by a Mat3Stack Object, rather than
+   *  directly by methods in Shader or SimpleRenderable
+   */
+  this.u_modelView = gl.getUniformLocation(this.program, 'u_modelView');
+  if (this.u_modelView < 0) {
+    alert('Failed to get the storage location of u_modelView');
+    throw new ShaderException();
+  }
+
+  this.u_FragColor = gl.getUniformLocation(this.program, 'u_FragColor');
+  if (!this.u_FragColor) {
+    alert('Failed to get the storage location of u_FragColor');
+    throw new ShaderException();
+  }
+
+  this.gl = gl;
 };
 
 /* @author Zachary Wartell
@@ -99,18 +98,16 @@ var Shader = function(gl,vshaderID,fshaderID)
  * Renderable is an abstract class.  It has a method, 'render()' which draws something to the OpenGL Canvas
  *   
  */
-var Renderable = function()
-{    
+var Renderable = function () {
 };
 
 /* @author Zachary Wartell
  * 
  * render this Renderable
  */
-Renderable.prototype.render = function ()
-{
-    throw new Error("Unimplemented abstract class method");
-    return;
+Renderable.prototype.render = function () {
+  throw new Error("Unimplemented abstract class method");
+  return;
 };
 
 /* @author Zachary Wartell
@@ -130,10 +127,9 @@ Renderable.prototype.render = function ()
  * 
  * @param {Object} shader - a Shader object
  */
-var ShaderRenderable = function(shader)
-{    
-    Renderable.call(this);
-    this.shader = shader;
+var ShaderRenderable = function (shader) {
+  Renderable.call(this);
+  this.shader = shader;
 };
 ShaderRenderable.prototype = Object.create(Renderable.prototype);
 
@@ -141,9 +137,8 @@ ShaderRenderable.prototype = Object.create(Renderable.prototype);
  * 
  * This method must be called by ShaderRenderable sub-classes .render method.
  */
-ShaderRenderable.prototype.render_begin = function ()
-{        
-    modelViewStack.updateShader(this.shader.u_modelView);
+ShaderRenderable.prototype.render_begin = function () {
+  modelViewStack.updateShader(this.shader.u_modelView);
 };
 
 /* @author Zachary Wartell
@@ -156,27 +151,26 @@ ShaderRenderable.prototype.render_begin = function ()
  *  
  * @param {Object} shader - a Shader object
  */
-var SimpleRenderable = function(shader)
-{    
-    ShaderRenderable.call(this,shader);
-    
-    var gl = this.shader.gl;
-    
-    /* color to use for this SimpleRenderable */
-    this.color = new Float32Array(4);
-    /* Array of 2D vertex coordinates (each coordinate is Array size 2) */
-    this.vertices = new Array();   
-    /* default GL primitive type */
-    this.primitive = gl.TRIANGLES;
-        
-    /*
-     *  create GL buffer (but don't transfer data into it, see updateBuffers).
-     */     
-    this.vertexBuffer = gl.createBuffer();
-    if (!this.vertexBuffer) {
-        alert('Failed to create the buffer object');
-        throw new ShaderException();
-    }      
+var SimpleRenderable = function (shader) {
+  ShaderRenderable.call(this, shader);
+
+  var gl = this.shader.gl;
+
+  /* color to use for this SimpleRenderable */
+  this.color = new Float32Array(4);
+  /* Array of 2D vertex coordinates (each coordinate is Array size 2) */
+  this.vertices = new Array();
+  /* default GL primitive type */
+  this.primitive = gl.TRIANGLES;
+
+  /*
+   *  create GL buffer (but don't transfer data into it, see updateBuffers).
+   */
+  this.vertexBuffer = gl.createBuffer();
+  if (!this.vertexBuffer) {
+    alert('Failed to create the buffer object');
+    throw new ShaderException();
+  }
 };
 SimpleRenderable.prototype = Object.create(ShaderRenderable.prototype);
 
@@ -188,14 +182,13 @@ SimpleRenderable.prototype = Object.create(ShaderRenderable.prototype);
  * 
  * preconditions:  GLSL program and vertex buffer are already created
  */
-SimpleRenderable.prototype.updateBuffers = function ()
-{
-    var gl = this.shader.gl;
-        
-    // bind to the GL ARRAY_BUFFER
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-    // copy vertex data into ARRAY_BUFFER
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(this.vertices), gl.STATIC_DRAW);
+SimpleRenderable.prototype.updateBuffers = function () {
+  var gl = this.shader.gl;
+
+  // bind to the GL ARRAY_BUFFER
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+  // copy vertex data into ARRAY_BUFFER
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(this.vertices), gl.STATIC_DRAW);
 };
 
 /* @author Zachary Wartell
@@ -204,31 +197,29 @@ SimpleRenderable.prototype.updateBuffers = function ()
  * preconditions:  GLSL program and vertex buffer are already created
  * @returns {undefined}
  */
-SimpleRenderable.prototype.render = function ()
-{
-    this.render_begin();
-    
-    var gl = this.shader.gl;
-    
-    // enable shader
-    gl.useProgram(this.shader.program);
-    
-    // draw primitives
-    if (this.vertices.length) 
-    {	                
-        // bind the vertex buffer to the GL ARRAY_BUFFER 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+SimpleRenderable.prototype.render = function () {
+  this.render_begin();
 
-        // use the vertexBuffer for the vertex attribute variable 'a_Position'
-        gl.vertexAttribPointer(this.shader.a_Position, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(this.shader.a_Position);
-        
-        // set the various uniform variables
-        gl.uniform4fv(this.shader.u_FragColor,this.color);    
-       
-        // draw the triangles
-        gl.drawArrays(this.primitive, 0, this.vertices.length);
-    }    
+  var gl = this.shader.gl;
+
+  // enable shader
+  gl.useProgram(this.shader.program);
+
+  // draw primitives
+  if (this.vertices.length) {
+    // bind the vertex buffer to the GL ARRAY_BUFFER 
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+
+    // use the vertexBuffer for the vertex attribute variable 'a_Position'
+    gl.vertexAttribPointer(this.shader.a_Position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(this.shader.a_Position);
+
+    // set the various uniform variables
+    gl.uniform4fv(this.shader.u_FragColor, this.color);
+
+    // draw the triangles
+    gl.drawArrays(this.primitive, 0, this.vertices.length);
+  }
 };
 
 /* @author Zachary Wartell && ...
@@ -237,10 +228,9 @@ SimpleRenderable.prototype.render = function ()
  * CoordinateRenderable is a abstract class. It is Renderable whose geometric coordinates are all measured relative to a single 
  * coordinate system.  The coordinate system is described by an object of type CoordinateSystem, stored in this.parent.
 */
-var CoordinateRenderable = function()
-{
-    Renderable.call(this);
-    this.parent = null;
+var CoordinateRenderable = function () {
+  Renderable.call(this);
+  this.parent = null;
 };
 CoordinateRenderable.prototype = Object.create(Renderable.prototype);
 
@@ -249,14 +239,16 @@ CoordinateRenderable.prototype = Object.create(Renderable.prototype);
  * 
  * Details of this class are described in the assignment description.
 */
-var CoordinateSystem = function()
-{
-    CoordinateRenderable.call(this);
-    this.origin = new Vec2();
-    this.scale = new Vec2([1,1]);
-    this.orientation = 0.0;
-    
-    /* \todo add code as need to implement CoordinateSystem class */
+var CoordinateSystem = function () {
+  CoordinateRenderable.call(this);
+  this.origin = new Vec2();
+  this.scale = new Vec2([1, 1]);
+  this.orientation = 0.0;
+
+  /* \todo add code as need to implement CoordinateSystem class */
+  this.parent = null;
+  this.children = new Array();
+  this.shapes = new Array();
 };
 CoordinateSystem.prototype = Object.create(CoordinateRenderable.prototype);
 
@@ -273,13 +265,10 @@ CoordinateSystem.prototype = Object.create(CoordinateRenderable.prototype);
  *  
  *  @returns {Mat3}
  */
-CoordinateSystem.prototype.parent_x_local = function ()
-{
-    var M = new Mat3();
-    M.setTranslate([this.origin.x,this.origin.y]);
-    M.rotate(this.orientation);
-    M.scale([this.scale.x,this.scale.y]);
-    return M;          
+CoordinateSystem.prototype.parent_x_local = function () {
+  var M = new Mat3();
+  // M_parent<-local = T_local * R_local * S_local
+  return M.translate([this.origin.x, this.origin.y]).multiply(M.rotate(this.orientation).multiply(M.scale([this.scale.x, this.scale.y])));
 };
 
 /* @author 
@@ -291,9 +280,15 @@ CoordinateSystem.prototype.parent_x_local = function ()
  *        
  * @returns {Mat3}
  */
-CoordinateSystem.prototype.local_x_parent = function ()
-{
-    /* \todo implement */
+CoordinateSystem.prototype.local_x_parent = function () {
+  /* \todo implement */
+  if (this.parent !== null) {
+    var M = new Mat3();
+    // M_local<-parent = T_parent * R_parent * S_parent
+    return M.translate([this.parent.origin.x, this.parent.origin.y]).multiply(M.rotate(this.parent.orientation).multiply(M.scale([this.parent.scale.x, this.parent.scale.y])));
+  } else {
+    return new Mat3();
+  }
 };
 
 /* @author 
@@ -305,9 +300,13 @@ CoordinateSystem.prototype.local_x_parent = function ()
  *  
  * @returns {Mat3}
  */
-CoordinateSystem.prototype.world_x_local = function ()
-{
-    /* \todo implement */
+CoordinateSystem.prototype.world_x_local = function () {
+  /* \todo implement */
+  if (this.parent == null) {
+    return this.parent_x_local();
+  } else {
+    return this.parent_x_local() * this.parent.world_x_local();
+  }
 };
 
 /* @author 
@@ -319,18 +318,33 @@ CoordinateSystem.prototype.world_x_local = function ()
  *        
  *  * @returns {Mat3}
  */
-CoordinateSystem.prototype.local_x_world = function ()
-{
-    /* \todo implement */
+CoordinateSystem.prototype.local_x_world = function () {
+  /* \todo implement */
+  if (this.parent == null) {
+    return this.local_x_parent();
+  } else {
+    return this.local_x_parent() * this.parent.local_x_parent();
+  }
 };
 
 /*
  * Recursively traverse the tree structure rendering all children coordinate systems and all shapes.
  * @returns {undefined}
  */
-CoordinateSystem.prototype.render = function ()
-{
-    /* \todo implement */
+CoordinateSystem.prototype.render = function () {
+  /* \todo implement */
+  modelViewStack.push();
+  modelViewStack.transform(this.parent_x_local());
+
+  this.children.forEach(function (child) {
+    child.render();
+  });
+
+  this.shapes.forEach(function (shape) {
+    shape.render();
+  });
+
+  modelViewStack.pop();
 };
 
 /*
@@ -338,9 +352,9 @@ CoordinateSystem.prototype.render = function ()
  * @param {Shape} shape
  * @returns {undefined}
  */
-CoordinateSystem.prototype.add_shape = function (shape)
-{
-    /* \todo implement */    
+CoordinateSystem.prototype.add_shape = function (shape) {
+  /* \todo implement */
+  this.shapes.push(shape);
 };
 
 /*
@@ -348,9 +362,14 @@ CoordinateSystem.prototype.add_shape = function (shape)
  * @param {CoordinateSystem} child
  * @returns {undefined}
  */
-CoordinateSystem.prototype.add_child = function (child)
-{
-    /* \todo implement */        
+CoordinateSystem.prototype.add_child = function (child) {
+  /* \todo implement */
+  this.children.push(child);
+  child.set_parent(this);
+};
+
+CoordinateSystem.prototype.set_parent = function (par) {
+  this.parent = par;
 };
 
 /* \todo add other CoordinateSystem methods as needed */
@@ -361,10 +380,10 @@ CoordinateSystem.prototype.add_child = function (child)
  * Shape is an abstract class that implements CoordinateRenderable
  * further it has several additional methods.
 */
-var Shape = function()
-{
-    CoordinateRenderable.call(this);
-    /* \todo add code as need to implement CoordinateSystem class */
+var Shape = function () {
+  CoordinateRenderable.call(this);
+  /* \todo add code as need to implement CoordinateSystem class */
+  this.parent = null;
 };
 Shape.prototype = Object.create(CoordinateRenderable.prototype);
 
@@ -375,10 +394,9 @@ Shape.prototype = Object.create(CoordinateRenderable.prototype);
  * @param {Vec2} point_wcs
  * @returns {Boolean}
  */
-Shape.prototype.point_inside = function (point_wcs)
-{
-    throw new Error("Unimplemented abstract class method");
-    return false;    
+Shape.prototype.point_inside = function (point_wcs) {
+  throw new Error("Unimplemented abstract class method");
+  return false;
 };
 
 /* \todo add Shape methods if needed */
@@ -391,25 +409,23 @@ Shape.prototype.point_inside = function (point_wcs)
  * 
  * @param {Object} gl - a WebGLContext object
 */
-var UnitSquare = function(gl,shader)
-{
-    Shape.call(this);
-    
-    this.renderable = new SimpleRenderable (shader);//new Shader(gl, "vertex-shader", "fragment-shader"));
-    this.renderable.vertices.push([-0.5,-0.5]);
-    this.renderable.vertices.push([ 0.5,-0.5]);
-    this.renderable.vertices.push([ 0.5, 0.5]);
-    this.renderable.vertices.push([-0.5,-0.5]);
-    this.renderable.vertices.push([-0.5, 0.5]);
-    this.renderable.vertices.push([ 0.5, 0.5]); 
-    this.renderable.updateBuffers();    
-    this.renderable.color.set([1.0,1.0,1.0,1.0]); 
+var UnitSquare = function (gl, shader) {
+  Shape.call(this);
+
+  this.renderable = new SimpleRenderable(shader);//new Shader(gl, "vertex-shader", "fragment-shader"));
+  this.renderable.vertices.push([-0.5, -0.5]);
+  this.renderable.vertices.push([0.5, -0.5]);
+  this.renderable.vertices.push([0.5, 0.5]);
+  this.renderable.vertices.push([-0.5, -0.5]);
+  this.renderable.vertices.push([-0.5, 0.5]);
+  this.renderable.vertices.push([0.5, 0.5]);
+  this.renderable.updateBuffers();
+  this.renderable.color.set([1.0, 1.0, 1.0, 1.0]);
 };
 UnitSquare.prototype = Object.create(Shape.prototype);
 
-UnitSquare.prototype.render = function ()
-{
-    this.renderable.render();
+UnitSquare.prototype.render = function () {
+  this.renderable.render();
 };
 
 /*
@@ -418,17 +434,16 @@ UnitSquare.prototype.render = function ()
  * @param {Vec2} point_wcs
  * @returns {Boolean}
  */
-UnitSquare.prototype.point_inside = function (point_wcs)
-{
-    // compute point coordinate in local coordinate system 
-    var point_lcs = new Vec3();
-    point_lcs.x = point_wcs.x; point_lcs.y = point_wcs.y;  point_lcs.w = 1.0;
-    if (this.parent !== null)
-        point_lcs.multiply(this.parent.local_x_world());
-    
-    // perform containment test in local coordinate space
-    //console.log("  lcs: " + point_lcs.x + ", " + point_lcs.y);
-    return point_lcs.x <= 0.5 && point_lcs.x >= -0.5 &&
-           point_lcs.y <= 0.5 && point_lcs.y >= -0.5;
+UnitSquare.prototype.point_inside = function (point_wcs) {
+  // compute point coordinate in local coordinate system 
+  var point_lcs = new Vec3();
+  point_lcs.x = point_wcs.x; point_lcs.y = point_wcs.y; point_lcs.w = 1.0;
+  if (this.parent !== null)
+    point_lcs.multiply(this.parent.local_x_world());
+
+  // perform containment test in local coordinate space
+  //console.log("  lcs: " + point_lcs.x + ", " + point_lcs.y);
+  return point_lcs.x <= 0.5 && point_lcs.x >= -0.5 &&
+         point_lcs.y <= 0.5 && point_lcs.y >= -0.5;
 };
 

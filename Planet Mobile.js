@@ -61,9 +61,9 @@ function main() {
     if (1)
         TestStack_test1(renderables,shader);
     /* enable these to test implementation of CoordinateSystem, etc. */
-    if (0)
+    if (1)
         CoordinateSystem_test1(renderables,shader,gl);
-    if (0)
+    if (1)
         CoordinateSystem_test2(renderables,shader,gl);        
         
     var skeleton=true;
