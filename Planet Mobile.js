@@ -246,9 +246,9 @@ function handleMouseDown(ev, gl, canvas, renderables) {
   x = ((x - rect.left) - canvas.width / 2) / (canvas.width / 2);
   y = (canvas.height / 2 - (y - rect.top)) / (canvas.height / 2);
 
-  console.log("click\n" +
-              "  GUI: " + ev.clientX + ", " + ev.clientY + "\n" +
-              "  NDC: " + x + ", " + y);
+  //console.log("click\n" +
+  //            "  GUI: " + ev.clientX + ", " + ev.clientY + "\n" +
+  //            "  NDC: " + x + ", " + y);
 
   // \todo test all Shape objects for selection using their point_inside method's
   var selected = false;
@@ -259,14 +259,12 @@ function handleMouseDown(ev, gl, canvas, renderables) {
   });
 
   if (selected) {
-    console.log("User selected: " + selected.name);
+    //console.log("User selected: " + selected.name);
     document.getElementById("SelectedText").innerHTML = selected.name;
   } else {
-    console.log("User did not select anything.");
+    //console.log("User did not select anything.");
     document.getElementById("SelectedText").innerHTML = "None";
   }
-
-  requestAnimationFrame(repaint);
 }
 
 /*
