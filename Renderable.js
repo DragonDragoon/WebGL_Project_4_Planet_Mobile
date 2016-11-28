@@ -469,15 +469,19 @@ Shape.prototype.toString = function () {
 var UnitSquare = function (gl, shader, transform) {
   Shape.call(this);
 
+  this.center = (transform && transform.center instanceof Vec2) ? transform.center : new Vec2([0.0, 0.0]);
+  this.width = (transform && typeof transform.width == "number") ? transform.width : 1.0;
+  this.height = (transform && typeof transform.height == "number") ? transform.height : 1.0;
+  this.name = (transform && typeof transform.name == "string") ? transform.name : null;
   this.selectable = (transform && typeof transform.selectable == "boolean") ? transform.selectable : false;
 
   this.renderable = new SimpleRenderable(shader);//new Shader(gl, "vertex-shader", "fragment-shader"));
-  this.renderable.vertices.push([-0.5, -0.5]);
-  this.renderable.vertices.push([0.5, -0.5]);
-  this.renderable.vertices.push([0.5, 0.5]);
-  this.renderable.vertices.push([-0.5, -0.5]);
-  this.renderable.vertices.push([-0.5, 0.5]);
-  this.renderable.vertices.push([0.5, 0.5]);
+  this.renderable.vertices.push([this.center.x - (this.width / 2), this.center.y - (this.height / 2)]);
+  this.renderable.vertices.push([this.center.x + (this.width / 2), this.center.y - (this.height / 2)]);
+  this.renderable.vertices.push([this.center.x + (this.width / 2), this.center.y + (this.height / 2)]);
+  this.renderable.vertices.push([this.center.x - (this.width / 2), this.center.y - (this.height / 2)]);
+  this.renderable.vertices.push([this.center.x - (this.width / 2), this.center.y + (this.height / 2)]);
+  this.renderable.vertices.push([this.center.x + (this.width / 2), this.center.y + (this.height / 2)]);
   this.renderable.updateBuffers();
   this.renderable.color.set((transform && transform.color instanceof Array && transform.color.length == 4) ? transform.color : [1.0, 1.0, 1.0, 1.0]);
 };
@@ -502,9 +506,9 @@ UnitSquare.prototype.point_inside = function (point_wcs) {
   }
 
   // perform containment test in local coordinate space
-  console.log("  lcs: " + point_lcs.x + ", " + point_lcs.y);
-  return point_lcs.x <= 0.5 && point_lcs.x >= -0.5 &&
-         point_lcs.y <= 0.5 && point_lcs.y >= -0.5;
+  //console.log("  lcs: " + point_lcs.x + ", " + point_lcs.y);
+  return (point_lcs.x <= this.center.x + (this.width / 2)) && point_lcs.x >= this.center.x - (this.width / 2) &&
+          point_lcs.y <= this.center.y + (this.height / 2) && point_lcs.y >= this.center.y - (this.height / 2);
 };
 
 /**
@@ -513,19 +517,19 @@ UnitSquare.prototype.point_inside = function (point_wcs) {
 var UnitDisc = function (gl, shader, transform) {
   Shape.call(this);
 
-  var center = (transform && transform.center instanceof Array && transform.center.length == 2) ? transform.center : [0.0, 0.0];
-  var radius = (transform && typeof transform.radius == "number") ? transform.radius : 0.5;
-  var numVertices = (transform && typeof transform.numVertices == "number") ? transform.numVertices : 45;
+  this.center = (transform && transform.center instanceof Vec2) ? transform.center : new Vec2([0.0, 0.0]);
+  this.radius = (transform && typeof transform.radius == "number") ? transform.radius : 0.5;
+  this.numVertices = (transform && typeof transform.numVertices == "number") ? transform.numVertices : 45;
   this.name = (transform && typeof transform.name == "string") ? transform.name : null;
   this.selectable = (transform && typeof transform.selectable == "boolean") ? transform.selectable : false;
 
   this.renderable = new SimpleRenderable(shader);
   this.renderable.primitive = gl.TRIANGLE_FAN;
   
-  this.renderable.vertices.push(center); // Center vertex
-  for (var i = 0; i <= numVertices; i++) {
-    var angle = (360 / numVertices) * (i / 180 * Math.PI);
-    this.renderable.vertices.push([radius * Math.sin(angle), radius * Math.cos(angle)]); // Outer vertices
+  this.renderable.vertices.push([this.center.x, this.center.y]); // Center vertex
+  for (var i = 0; i <= this.numVertices; i++) {
+    var angle = (360 / this.numVertices) * (i / 180 * Math.PI);
+    this.renderable.vertices.push([this.center.x + this.radius * Math.sin(angle), this.center.y + this.radius * Math.cos(angle)]); // Outer vertices
   }
 
   this.renderable.updateBuffers();
