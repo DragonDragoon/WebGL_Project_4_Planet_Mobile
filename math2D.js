@@ -357,17 +357,23 @@ Mat3.prototype.setIdentity = function () {
   this.array[2] = 0.0; this.array[5] = 0.0; this.array[8] = 1.0;
 };
 
+/**********************************************************************************************************************************************************************************************************************************************************************************************************
+ * ADDED
+ */
+/* For displaying in console */
 Mat3.prototype.toString = function () {
   return "| " + this.array[0] + " " + this.array[1] + " " + this.array[2] + " |\n"
        + " | " + this.array[3] + " " + this.array[4] + " " + this.array[5] + " |\n"
        + " | " + this.array[6] + " " + this.array[7] + " " + this.array[8] + " |";
 };
 
+/* Return M^-1 */
 Mat3.prototype.inverse = function () {
   return (new Mat3([(new Mat2([this.get(1, 1), this.get(2, 1), this.get(1, 2), this.get(2, 2)])).det(), (new Mat2([this.get(2, 0), this.get(1, 0), this.get(2, 2), this.get(1, 2)])).det(), (new Mat2([this.get(1, 0), this.get(2, 0), this.get(1, 1), this.get(2, 1)])).det(),
                    (new Mat2([this.get(2, 1), this.get(0, 1), this.get(2, 2), this.get(0, 2)])).det(), (new Mat2([this.get(0, 0), this.get(2, 0), this.get(0, 2), this.get(2, 2)])).det(), (new Mat2([this.get(2, 0), this.get(0, 0), this.get(2, 1), this.get(0, 1)])).det(),
                    (new Mat2([this.get(0, 1), this.get(1, 1), this.get(0, 2), this.get(1, 2)])).det(), (new Mat2([this.get(1, 0), this.get(0, 0), this.get(1, 2), this.get(0, 2)])).det(), (new Mat2([this.get(0, 0), this.get(1, 0), this.get(0, 1), this.get(1, 1)])).det()])).multiply(1 / this.det());
 };
+/**********************************************************************************************************************************************************************************************************************************************************************************************************/
 
 /**
  * @author Zachary Wartell 

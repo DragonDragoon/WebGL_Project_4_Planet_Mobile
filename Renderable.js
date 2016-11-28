@@ -381,11 +381,9 @@ CoordinateSystem.prototype.add_child = function (child) {
 };
 
 /* \todo add other CoordinateSystem methods as needed */
-CoordinateSystem.prototype.set_parent = function (par) {
-  this.parent = par;
-  par.children.push(this);
-};
-
+/*********************************************************************************************************************************
+ * ADDED
+ */
 CoordinateSystem.prototype.transform = function (transform) {
   this.origin = (transform && transform.origin instanceof Array && transform.origin.length == 2) ? transform.origin : this.origin;
   this.scale = (transform && transform.scale instanceof Array && transform.scale.length == 2) ? transform.scale : this.scale;
@@ -422,6 +420,7 @@ CoordinateSystem.prototype.selectables = function (arr) {
 
   return arr;
 };
+/**********************************************************************************************************************************/
 
 /* @author Zachary Wartell && ...
  * Constructor new Shape Object
@@ -449,6 +448,9 @@ Shape.prototype.point_inside = function (point_wcs) {
 };
 
 /* \todo add Shape methods if needed */
+/*********************************************************************************************************************************
+ * ADDED
+ */
 Shape.prototype.set_parent = function (par) {
   this.parent = par;
   par.shapes.push(this);
@@ -457,6 +459,7 @@ Shape.prototype.set_parent = function (par) {
 Shape.prototype.toString = function () {
   return "Shape";
 };
+/*********************************************************************************************************************************/
 
 /* @author Zachary Wartell && ...
  * Constructor new UnitSquare Object
@@ -511,7 +514,7 @@ UnitSquare.prototype.point_inside = function (point_wcs) {
           point_lcs.y <= this.center.y + (this.height / 2) && point_lcs.y >= this.center.y - (this.height / 2);
 };
 
-/**
+/*******************************************************************************************************************************************************
  * Unit Disc
  */
 var UnitDisc = function (gl, shader, transform) {

@@ -126,6 +126,7 @@ Mat3Stack.prototype.rotate = function () {
  * as you see fit.
  */
 
+/* Apply the full transformation matrix (just multiply) to the top Mat3 */
 Mat3Stack.prototype.transform = function () {
   /* \todo implement this */
   if (this.array.length === 0) {
