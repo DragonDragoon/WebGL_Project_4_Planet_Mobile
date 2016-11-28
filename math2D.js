@@ -70,12 +70,6 @@ var Mat3 = function () {
   }
 };
 
-Mat3.prototype.toString = function () {
-  return "| " + this.array[0] + " " + this.array[1] + " " + this.array[2] + " |\n"
-       + " | " + this.array[3] + " " + this.array[4] + " " + this.array[5] + " |\n"
-       + " | " + this.array[6] + " " + this.array[7] + " " + this.array[8] + " |";
-};
-
 /**
  * @author Zachary Wartell
  * 'get' returns element in column c, row r of this Mat3
@@ -125,6 +119,15 @@ Mat3.prototype.multiply = function (matrix) {
     for (r = 0; r <= 2; r++) {
       for (c = 0; c <= 2; c++) {
         Mr[c * 3 + r] = this.get(r, 0) * matrix.get(0, c) + this.get(r, 1) * matrix.get(1, c) + this.get(r, 2) * matrix.get(2, c);
+      }
+    }
+    return new Mat3(Mr);
+  } else if (typeof matrix == "number") {
+    var r, c;
+    var Mr = new Float32Array(9); /* 'MatrixResult' */
+    for (r = 0; r <= 2; r++) {
+      for (c = 0; c <= 2; c++) {
+        Mr[c * 3 + r] = matrix * this.get(r, c);
       }
     }
     return new Mat3(Mr);
@@ -354,6 +357,18 @@ Mat3.prototype.setIdentity = function () {
   this.array[2] = 0.0; this.array[5] = 0.0; this.array[8] = 1.0;
 };
 
+Mat3.prototype.toString = function () {
+  return "| " + this.array[0] + " " + this.array[1] + " " + this.array[2] + " |\n"
+       + " | " + this.array[3] + " " + this.array[4] + " " + this.array[5] + " |\n"
+       + " | " + this.array[6] + " " + this.array[7] + " " + this.array[8] + " |";
+};
+
+Mat3.prototype.inverse = function () {
+  return (new Mat3([(new Mat2([this.get(1, 1), this.get(2, 1), this.get(1, 2), this.get(2, 2)])).det(), (new Mat2([this.get(2, 0), this.get(1, 0), this.get(2, 2), this.get(1, 2)])).det(), (new Mat2([this.get(1, 0), this.get(2, 0), this.get(1, 1), this.get(2, 1)])).det(),
+                   (new Mat2([this.get(2, 1), this.get(0, 1), this.get(2, 2), this.get(0, 2)])).det(), (new Mat2([this.get(0, 0), this.get(2, 0), this.get(0, 2), this.get(2, 2)])).det(), (new Mat2([this.get(2, 0), this.get(0, 0), this.get(2, 1), this.get(0, 1)])).det(),
+                   (new Mat2([this.get(0, 1), this.get(1, 1), this.get(0, 2), this.get(1, 2)])).det(), (new Mat2([this.get(1, 0), this.get(0, 0), this.get(1, 2), this.get(0, 2)])).det(), (new Mat2([this.get(0, 0), this.get(1, 0), this.get(0, 1), this.get(1, 1)])).det()])).multiply(1 / this.det());
+};
+
 /**
  * @author Zachary Wartell 
  * Constructor of Vec3. Vec3 is is used to represent homogenous coordinates of 2D geometric points or vectors, stored as (x,y,w)
@@ -521,10 +536,15 @@ Vec3.prototype.dot = function (v) {
  * @param {null}                  
  * @returns {Mat2}
  */
-var Mat2 = function () {
+var Mat2 = function (arr) {
   this.array = new Float32Array(4);
-  this.array.set([1.0, 0.0,
-                  0.0, 1.0]);
+  if (arr instanceof Array) {
+    this.array.set([arr[0], arr[1],
+                    arr[2], arr[3]]);
+  } else {
+    this.array.set([1.0, 0.0,
+                    0.0, 1.0]);
+  }
 };
 
 /**

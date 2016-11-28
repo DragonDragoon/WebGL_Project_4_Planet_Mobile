@@ -292,14 +292,8 @@ CoordinateSystem.prototype.parent_x_local = function () {
  * @returns {Mat3}
  */
 CoordinateSystem.prototype.local_x_parent = function () {
-  /* \todo implement */
-  if (this.parent !== null) {
-    var M = new Mat3();
-    // M_local<-parent = T_parent * R_parent * S_parent
-    return M.translate([this.parent.origin.x, this.parent.origin.y]).multiply(M.rotate(this.parent.orientation).multiply(M.scale([this.parent.scale.x, this.parent.scale.y])));
-  } else {
-    return new Mat3();
-  }
+  // M_local<-parent = M_parent<-local^-1
+  return this.parent_x_local().inverse();
 };
 
 /* @author 
@@ -312,11 +306,11 @@ CoordinateSystem.prototype.local_x_parent = function () {
  * @returns {Mat3}
  */
 CoordinateSystem.prototype.world_x_local = function () {
-  /* \todo implement */
+  // M_world<-local = [M_parent<-local *] M_parent<-local <- until parent = null
   if (this.parent == null) {
     return this.parent_x_local();
   } else {
-    return this.parent_x_local().multiply(this.parent.world_x_local());
+    return this.parent.world_x_local().multiply(this.parent_x_local());
   }
 };
 
@@ -331,11 +325,15 @@ CoordinateSystem.prototype.world_x_local = function () {
  */
 CoordinateSystem.prototype.local_x_world = function () {
   /* \todo implement */
+  // M_local<-world = M_local<-parent [* M_local<-parent] = M_parent<-local^1 [* M_local<-parent^1] <- until parent = null
   if (this.parent == null) {
     return this.local_x_parent();
   } else {
-    return this.local_x_parent().multiply(this.parent.local_x_parent());
+    return this.local_x_parent().multiply(this.parent.local_x_world());
   }
+  // Also,
+  // M_local<-world = M_world<-local^-1
+  //return this.world_x_local().inverse();
 };
 
 /*
@@ -446,7 +444,7 @@ Shape.prototype = Object.create(CoordinateRenderable.prototype);
  * @returns {Boolean}
  */
 Shape.prototype.point_inside = function (point_wcs) {
-  throw new Error("Unimplemented abstract class method");
+  //throw new Error("Unimplemented abstract class method");
   return false;
 };
 
@@ -468,8 +466,10 @@ Shape.prototype.toString = function () {
  * 
  * @param {Object} gl - a WebGLContext object
 */
-var UnitSquare = function (gl, shader) {
+var UnitSquare = function (gl, shader, transform) {
   Shape.call(this);
+
+  this.selectable = (transform && typeof transform.selectable == "boolean") ? transform.selectable : false;
 
   this.renderable = new SimpleRenderable(shader);//new Shader(gl, "vertex-shader", "fragment-shader"));
   this.renderable.vertices.push([-0.5, -0.5]);
@@ -479,7 +479,7 @@ var UnitSquare = function (gl, shader) {
   this.renderable.vertices.push([-0.5, 0.5]);
   this.renderable.vertices.push([0.5, 0.5]);
   this.renderable.updateBuffers();
-  this.renderable.color.set([1.0, 1.0, 1.0, 1.0]);
+  this.renderable.color.set((transform && transform.color instanceof Array && transform.color.length == 4) ? transform.color : [1.0, 1.0, 1.0, 1.0]);
 };
 UnitSquare.prototype = Object.create(Shape.prototype);
 
@@ -502,7 +502,7 @@ UnitSquare.prototype.point_inside = function (point_wcs) {
   }
 
   // perform containment test in local coordinate space
-  //console.log("  lcs: " + point_lcs.x + ", " + point_lcs.y);
+  console.log("  lcs: " + point_lcs.x + ", " + point_lcs.y);
   return point_lcs.x <= 0.5 && point_lcs.x >= -0.5 &&
          point_lcs.y <= 0.5 && point_lcs.y >= -0.5;
 };

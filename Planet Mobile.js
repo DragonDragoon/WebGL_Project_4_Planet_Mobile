@@ -473,10 +473,11 @@ function main() {
       }
     }
 
-    lastTimestamp = timestamp;
-
     if (paused == false) {
+      lastTimestamp = timestamp;
       requestAnimationFrame(repaint);
+    } else {
+      lastTimestamp = null;
     }
   };
 
@@ -517,6 +518,9 @@ function handleMouseDown(ev, gl, canvas, renderables) {
               "  NDC: " + x + ", " + y);
 
   // \todo test all Shape objects for selection using their point_inside method's    
+  selectables.forEach(function (shape) {
+    console.log(shape.point_inside(new Vec2([x, y])));
+  });
 
   requestAnimationFrame(repaint);
 }
