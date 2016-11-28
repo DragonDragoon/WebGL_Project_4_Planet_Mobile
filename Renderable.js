@@ -540,3 +540,16 @@ UnitDisc.prototype = Object.create(Shape.prototype);
 UnitDisc.prototype.render = function () {
   this.renderable.render();
 };
+
+UnitDisc.prototype.point_inside = function (point_wcs) {
+  // compute point coordinate in local coordinate system 
+  var point_lcs = new Vec3();
+  point_lcs.x = point_wcs.x; point_lcs.y = point_wcs.y; point_lcs.w = 1.0;
+  if (this.parent !== null) {
+    point_lcs = point_lcs.multiply(this.parent.local_x_world());
+  }
+
+  // perform containment test in local coordinate space
+  //console.log("  lcs: " + point_lcs.x + ", " + point_lcs.y);
+  return (Math.pow(point_lcs.x - this.center.x, 2) + Math.pow(point_lcs.y - this.center.y, 2) <= Math.pow(this.radius, 2));
+};

@@ -84,6 +84,36 @@ function main() {
   }
 
   /* Added */
+
+  var asteroids = {};
+  var num_asteroids = 4;
+  var asteroid_belt_radius = 0.475;
+
+  for (var i = 0; i <= num_asteroids; i++) {
+    var asteroid_shapes = {};
+    var num_asteroid = i + 1;
+    var angle = (360 * Math.random()) * ((i + 1) / 180 * Math.PI);
+    /* asteroidBeltCS -> asteroidX */
+    asteroid_shapes["asteroid" + num_asteroid] = new UnitSquare(gl, shader, {
+      name: "Asteroid " + num_asteroid,
+      center: new Vec2([0.0, 0.0]),
+      width: 1.0,
+      height: 1.0,
+      color: [Math.random(), Math.random(), Math.random(), 1.0],
+      selectable: true
+    }) // asteroidX
+    /* asteroidBeltOrbitCS -> asteroidXCS */
+    asteroids["asteroid" + num_asteroid + "CS"] = new CoordinateSystem({
+      name: "Asteroid " + num_asteroid + " Coordinate System",
+      origin: new Vec2([0.0 + asteroid_belt_radius * Math.sin(angle), 0.0 + asteroid_belt_radius * Math.cos(angle)]),
+      scale: new Vec2([0.06 * Math.random(), 0.06 * Math.random()]),
+      orientation: 360 * Math.random(),
+      rotation_speed: Math.random() * (90 - -90) + -90,
+      children: false,
+      shapes: asteroid_shapes
+    }) // asteroidXCS
+  }
+
   /* rootCS */
   var main = true;
   if (main) {
@@ -281,90 +311,8 @@ function main() {
               scale: new Vec2([1.0, 1.0]),
               orientation: 0.0,
               rotation_speed: 365 / 400 * earth_orbit_speed,
-              children: {
-                /* asteroidBeltOrbitCS -> asteroid1CS */
-                asteroid1CS: new CoordinateSystem({
-                  name: "Asteroid 1 Coordinate System",
-                  origin: new Vec2([0.475, 0.0]),
-                  scale: new Vec2([0.0225, 0.0425]),
-                  orientation: 0.0,
-                  rotation_speed: 0.0,
-                  children: false,
-                  shapes: {
-                    /* asteroidBeltCS -> asteroid1 */
-                    asteroid1: new UnitSquare(gl, shader, {
-                      name: "Asteroid 1",
-                      center: new Vec2([0.0, 0.0]),
-                      width: 1.0,
-                      height: 1.0,
-                      color: [0.8, 0.8, 0.8, 1.0],
-                      selectable: true
-                    }) // asteroid1
-                  }
-                }), // asteroid1CS
-                /* asteroidBeltOrbitCS -> asteroid2CS */
-                asteroid2CS: new CoordinateSystem({
-                  name: "Asteroid 2 Coordinate System",
-                  origin: new Vec2([0.0, 0.475]),
-                  scale: new Vec2([0.0725, 0.0125]),
-                  orientation: 0.0,
-                  rotation_speed: 0.0,
-                  children: false,
-                  shapes: {
-                    /* asteroidBeltCS -> asteroid2 */
-                    asteroid2: new UnitSquare(gl, shader, {
-                      name: "Asteroid 2",
-                      center: new Vec2([0.0, 0.0]),
-                      width: 1.0,
-                      height: 1.0,
-                      color: [0.8, 0.8, 0.8, 1.0],
-                      selectable: true
-                    }) // asteroid2
-                  }
-                }), // asteroid2CS
-                /* asteroidBeltOrbitCS -> asteroid3CS */
-                asteroid3CS: new CoordinateSystem({
-                  name: "Asteroid 3 Coordinate System",
-                  origin: new Vec2([0.0, -0.475]),
-                  scale: new Vec2([0.0325, 0.0125]),
-                  orientation: 0.0,
-                  rotation_speed: 0.0,
-                  children: false,
-                  shapes: {
-                    /* asteroidBeltCS -> asteroid3 */
-                    asteroid3: new UnitSquare(gl, shader, {
-                      name: "Asteroid 3",
-                      center: new Vec2([0.0, 0.0]),
-                      width: 1.0,
-                      height: 1.0,
-                      color: [0.8, 0.8, 0.8, 1.0],
-                      selectable: true
-                    }) // asteroid3
-                  }
-                }), // asteroid3CS
-                /* asteroidBeltOrbitCS -> asteroid4CS */
-                asteroid4CS: new CoordinateSystem({
-                  name: "Asteroid 4 Coordinate System",
-                  origin: new Vec2([-0.475, 0.0]),
-                  scale: new Vec2([0.0225, 0.0225]),
-                  orientation: 0.0,
-                  rotation_speed: 0.0,
-                  children: false,
-                  shapes: {
-                    /* asteroidBeltCS -> asteroid4 */
-                    asteroid4: new UnitSquare(gl, shader, {
-                      name: "Asteroid 4",
-                      center: new Vec2([0.0, 0.0]),
-                      width: 1.0,
-                      height: 1.0,
-                      color: [0.8, 0.8, 0.8, 1.0],
-                      selectable: true
-                    }) // asteroid4
-                  }
-                }) // asteroid4CS
-                /* asteroidBeltOrbitCS -> asteroidXCS */
-                // Other asteroids are added here
-              },
+              /* asteroidBeltOrbitCS -> asteroidXCS */
+              children: asteroids, // <----------------- Asteroids are added here
               shapes: false
             }), // asteroidBeltOrbitCS
             /* solarSystemCS -> jupiterOrbitCS */
@@ -499,35 +447,6 @@ function main() {
       },
       shapes: false
     }); // rootCS
-
-    var num_asteroids = 4;
-    var asteroid_belt_radius = 0.475;
-
-    for (var i = 0; i <= num_asteroids; i++) {
-      var num_asteroid = i + 5;
-      var angle = (360 * Math.random()) * ((i + 1) / 180 * Math.PI);
-      //[this.center.x + this.radius * Math.sin(angle), this.center.y + this.radius * Math.cos(angle)]
-      /* asteroidBeltOrbitCS -> asteroidXCS */
-      rootCS.children.solarSystemCS.children.asteroidBeltOrbitCS.children["asteroid" + num_asteroid + "CS"] = new CoordinateSystem({
-        name: "Asteroid " + num_asteroid + " Coordinate System",
-        origin: new Vec2([0.0 + asteroid_belt_radius * Math.sin(angle), 0.0 + asteroid_belt_radius * Math.cos(angle)]),
-        scale: new Vec2([0.06 * Math.random(), 0.06 * Math.random()]),
-        orientation: 360 * Math.random(),
-        rotation_speed: Math.random() * (90 - -90) + -90,
-        children: false,
-        shapes: {
-        }
-      }) // asteroidXCS);
-      /* asteroidBeltCS -> asteroidX */
-      rootCS.children.solarSystemCS.children.asteroidBeltOrbitCS.children["asteroid" + num_asteroid + "CS"].shapes["asteroid" + num_asteroid] = new UnitSquare(gl, shader, {
-        name: "Asteroid " + num_asteroid,
-        center: new Vec2([0.0, 0.0]),
-        width: 1.0,
-        height: 1.0,
-        color: [Math.random(), Math.random(), Math.random(), 1.0],
-        selectable: true
-      }) // asteroidX
-    }
 
     console.log(rootCS);
 
