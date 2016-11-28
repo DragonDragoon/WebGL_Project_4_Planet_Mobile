@@ -569,8 +569,10 @@ function handleMouseDown(ev, gl, canvas, renderables) {
 
   if (selected) {
     console.log("User selected: " + selected.name);
+    document.getElementById("SelectedText").innerHTML = selected.name;
   } else {
     console.log("User did not select anything.");
+    document.getElementById("SelectedText").innerHTML = "None";
   }
 
   requestAnimationFrame(repaint);
