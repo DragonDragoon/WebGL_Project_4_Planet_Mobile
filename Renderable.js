@@ -246,6 +246,8 @@ var CoordinateSystem = function (transform) {
   this.scale = (transform && transform.scale instanceof Vec2) ? transform.scale : new Vec2([1.0, 1.0]);
   this.orientation = (transform && typeof transform.orientation == "number") ? transform.orientation : 0.0;
 
+  this.rotation_speed = (transform && typeof transform.rotation_speed == "number") ? transform.rotation_speed : 0.0;
+
   /* \todo add code as need to implement CoordinateSystem class */
   this.children = (transform && transform.children instanceof Object) ? transform.children : new Array();
   this.shapes = (transform && transform.shapes instanceof Object) ? transform.shapes : new Array();
@@ -396,6 +398,33 @@ CoordinateSystem.prototype.toString = function () {
   return "CoordinateSystem";
 };
 
+CoordinateSystem.prototype.animate = function (delta, speed) {
+  if (this.rotation_speed != 0.0) {
+    this.orientation = (this.orientation + (speed * this.rotation_speed * delta) / 1000.0) % 360;
+  }
+
+  var children = this.children;
+  Object.keys(children).forEach(function (key) {
+    children[key].animate(delta, speed);
+  });
+};
+
+CoordinateSystem.prototype.selectables = function (arr) {
+  var children = this.children;
+  Object.keys(children).forEach(function (key) {
+    children[key].selectables(arr);
+  });
+
+  var shapes = this.shapes;
+  Object.keys(shapes).forEach(function (key) {
+    if (shapes[key].selectable == true) {
+      arr.push(shapes[key]);
+    }
+  });
+
+  return arr;
+};
+
 /* @author Zachary Wartell && ...
  * Constructor new Shape Object
  * 
@@ -429,7 +458,7 @@ Shape.prototype.set_parent = function (par) {
 
 Shape.prototype.toString = function () {
   return "Shape";
-}
+};
 
 /* @author Zachary Wartell && ...
  * Constructor new UnitSquare Object
@@ -488,6 +517,7 @@ var UnitDisc = function (gl, shader, transform) {
   var radius = (transform && typeof transform.radius == "number") ? transform.radius : 0.5;
   var numVertices = (transform && typeof transform.numVertices == "number") ? transform.numVertices : 45;
   this.name = (transform && typeof transform.name == "string") ? transform.name : null;
+  this.selectable = (transform && typeof transform.selectable == "boolean") ? transform.selectable : false;
 
   this.renderable = new SimpleRenderable(shader);
   this.renderable.primitive = gl.TRIANGLE_FAN;

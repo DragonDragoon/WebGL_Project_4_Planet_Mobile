@@ -20,6 +20,9 @@ var repaint;
 
 /* Added */
 var rootCS;
+var paused = false;
+var earth_orbit_speed = 10.0;
+var speed = 1.0;
 
 /*****
  * 
@@ -93,15 +96,16 @@ function main() {
         solarSystemCS: new CoordinateSystem({
           name: "Solar System Coordinate System",
           origin: new Vec2([0.0, 0.0]),
-          scale: new Vec2([1.0, 1.0]),
+          scale: new Vec2([1.3, 1.3]),
           orientation: 0.0,
           children: {
             /* solarSystemCS -> solCS */
             solCS: new CoordinateSystem({
               name: "Sol Coordinate System",
               origin: new Vec2([0.0, 0.0]),
-              scale: new Vec2([0.25, 0.25]),
+              scale: new Vec2([0.15, 0.15]),
               orientation: 0.0,
+              rotation_speed: 0.0,
               children: false,
               shapes: {
                 /* sunCS -> sun */
@@ -110,23 +114,88 @@ function main() {
                   center: [0.0, 0.0],
                   radius: 0.5,
                   numVertices: 7,
-                  color: [1.0, 1.0, 0.0, 1.0]
+                  color: [1.0, 1.0, 0.0, 1.0],
+                  selectable: true
                 })
               }
             }),
+            /* solarSystemCS -> mercuryOrbitCS */
+            mercuryOrbitCS: new CoordinateSystem({
+              name: "Mercury Orbit Coordinate System",
+              origin: new Vec2([0.0, 0.0]),
+              scale: new Vec2([1.0, 1.0]),
+              orientation: 0.0,
+              rotation_speed: 365 / 88 * earth_orbit_speed,
+              children: {
+                /* mercuryOrbitCS -> mercuryCS */
+                mercuryCS: new CoordinateSystem({
+                  name: "Mercury Coordinate System",
+                  origin: new Vec2([0.1, 0.0]),
+                  scale: new Vec2([0.035, 0.030]),
+                  orientation: 0.0,
+                  rotation_speed: 0.0,
+                  children: false,
+                  shapes: {
+                    /* mercuryCS -> mercury */
+                    mercury: new UnitDisc(gl, shader, {
+                      name: "Mercury",
+                      center: [0.0, 0.0],
+                      radius: 0.5,
+                      numVertices: 7,
+                      color: [1.0, 0.60, 0.0, 1.0],
+                      selectable: true
+                    }) // mercury
+                  }
+                }) // mercuryCS
+              },
+              shapes: false
+            }), // mercuryOrbitCS
+            /* solarSystemCS -> venusOrbitCS */
+            venusOrbitCS: new CoordinateSystem({
+              name: "Venus Orbit Coordinate System",
+              origin: new Vec2([0.0, 0.0]),
+              scale: new Vec2([1.0, 1.0]),
+              orientation: 0.0,
+              rotation_speed: 365 / 225 * earth_orbit_speed,
+              children: {
+                /* venusOrbitCS -> venusCS */
+                venusCS: new CoordinateSystem({
+                  name: "Venus Coordinate System",
+                  origin: new Vec2([0.175, 0.0]),
+                  scale: new Vec2([0.055, 0.065]),
+                  orientation: 0.0,
+                  rotation_speed: 0.0,
+                  children: false,
+                  shapes: {
+                    /* venusCS -> venus */
+                    venus: new UnitDisc(gl, shader, {
+                      name: "Venus",
+                      center: [0.0, 0.0],
+                      radius: 0.5,
+                      numVertices: 7,
+                      color: [1.0, 0.6, 0.6, 1.0],
+                      selectable: true
+                    }) // venus
+                  }
+                }) // venusCS
+              },
+              shapes: false
+            }), // venusOrbitCS
             /* solarSystemCS -> earthOrbitCS */
             earthOrbitCS: new CoordinateSystem({
               name: "Earth Orbit Coordinate System",
               origin: new Vec2([0.0, 0.0]),
               scale: new Vec2([1.0, 1.0]),
               orientation: 0.0,
+              rotation_speed: earth_orbit_speed,
               children: {
                 /* earthOrbitCS -> earthCS */
                 earthCS: new CoordinateSystem({
                   name: "Earth Coordinate System",
-                  origin: new Vec2([0.5, 0.0]),
-                  scale: new Vec2([0.125, 0.125]),
+                  origin: new Vec2([0.3, 0.0]),
+                  scale: new Vec2([0.075, 0.075]),
                   orientation: 0.0,
+                  rotation_speed: 0.0,
                   children: false,
                   shapes: {
                     /* earthCS -> earth */
@@ -135,23 +204,26 @@ function main() {
                       center: [0.0, 0.0],
                       radius: 0.5,
                       numVertices: 7,
-                      color: [0.0, 0.0, 1.0, 1.0]
+                      color: [0.0, 0.0, 1.0, 1.0],
+                      selectable: true
                     }) // earth
                   }
                 }), // earthCS
                 /* earthOrbitCS -> moonOrbitCS */
                 moonOrbitCS: new CoordinateSystem({
                   name: "Moon Orbit Coordinate System",
-                  origin: new Vec2([0.5, 0.0]),
+                  origin: new Vec2([0.3, 0.0]),
                   scale: new Vec2([1.0, 1.0]),
                   orientation: 0.0,
+                  rotation_speed: 365 / 27 * earth_orbit_speed,
                   children: {
                     /* moonOrbitCS -> moonCS */
                     moonCS: new CoordinateSystem({
                       name: "Moon Coordinate System",
-                      origin: new Vec2([0.125, 0.0]),
-                      scale: new Vec2([0.0625, 0.0625]),
+                      origin: new Vec2([0.075, 0.0]),
+                      scale: new Vec2([0.0425, 0.0425]),
                       orientation: 0.0,
+                      rotation_speed: 0.0,
                       children: false,
                       shapes: {
                         /* moonCS -> moon */
@@ -160,7 +232,8 @@ function main() {
                           center: [0.0, 0.0],
                           radius: 0.5,
                           numVertices: 7,
-                          color: [0.5, 0.5, 0.5, 1.0]
+                          color: [0.5, 0.5, 0.5, 1.0],
+                          selectable: true
                         }) // moon
                       }
                     }) // moonCS
@@ -169,18 +242,175 @@ function main() {
                 }) // moonOrbitCS
               },
               shapes: false
-            }) // earthOrbitCS
+            }), // earthOrbitCS
+            /* solarSystemCS -> marsOrbitCS */
+            marsOrbitCS: new CoordinateSystem({
+              name: "Mars Orbit Coordinate System",
+              origin: new Vec2([0.0, 0.0]),
+              scale: new Vec2([1.0, 1.0]),
+              orientation: 0.0,
+              rotation_speed: 365 / 687 * earth_orbit_speed,
+              children: {
+                /* marsOrbitCS -> marsCS */
+                marsCS: new CoordinateSystem({
+                  name: "Mars Coordinate System",
+                  origin: new Vec2([0.4, 0.0]),
+                  scale: new Vec2([0.0225, 0.0425]),
+                  orientation: 0.0,
+                  rotation_speed: 0.0,
+                  children: false,
+                  shapes: {
+                    /* marsCS -> mars */
+                    mars: new UnitDisc(gl, shader, {
+                      name: "Mars",
+                      center: [0.0, 0.0],
+                      radius: 0.5,
+                      numVertices: 7,
+                      color: [1.0, 0.0, 0.0, 1.0],
+                      selectable: true
+                    }) // mars
+                  }
+                }) // marsCS
+              },
+              shapes: false
+            }), // marsOrbitCS
+            /* solarSystemCS -> jupiterOrbitCS */
+            jupiterOrbitCS: new CoordinateSystem({
+              name: "Jupiter Orbit Coordinate System",
+              origin: new Vec2([0.0, 0.0]),
+              scale: new Vec2([1.0, 1.0]),
+              orientation: 0.0,
+              rotation_speed: 365 / 4380 * earth_orbit_speed,
+              children: {
+                /* jupiterOrbitCS -> jupiterCS */
+                jupiterCS: new CoordinateSystem({
+                  name: "Jupiter Coordinate System",
+                  origin: new Vec2([0.6, 0.0]),
+                  scale: new Vec2([0.1, 0.1]),
+                  orientation: 0.0,
+                  rotation_speed: 0.0,
+                  children: false,
+                  shapes: {
+                    /* jupiterCS -> jupiter */
+                    jupiter: new UnitDisc(gl, shader, {
+                      name: "Jupiter",
+                      center: [0.0, 0.0],
+                      radius: 0.5,
+                      numVertices: 7,
+                      color: [1.0, 0.8, 0.6, 1.0],
+                      selectable: true
+                    }) // jupiter
+                  }
+                }), // jupiterCS
+                /* jupiterOrbitCS -> europaOrbitCS */
+                europaOrbitCS: new CoordinateSystem({
+                  name: "Europa Orbit Coordinate System",
+                  origin: new Vec2([0.6, 0.0]),
+                  scale: new Vec2([1.0, 1.0]),
+                  orientation: 0.0,
+                  rotation_speed: 365 / 3.5 * earth_orbit_speed,
+                  children: {
+                    /* europaOrbitCS -> europaCS */
+                    europaCS: new CoordinateSystem({
+                      name: "Europa Coordinate System",
+                      origin: new Vec2([0.075, 0.0]),
+                      scale: new Vec2([0.0325, 0.0325]),
+                      orientation: 0.0,
+                      rotation_speed: 0.0,
+                      children: false,
+                      shapes: {
+                        /* europaCS -> europa */
+                        europa: new UnitDisc(gl, shader, {
+                          name: "Europa",
+                          center: [0.0, 0.0],
+                          radius: 0.5,
+                          numVertices: 7,
+                          color: [0.5, 0.5, 0.5, 1.0],
+                          selectable: true
+                        }) // europa
+                      }
+                    }) // europaCS
+                  },
+                  shapes: false
+                }), // europaOrbitCS
+                /* jupiterOrbitCS -> euporieOrbitCS */
+                euporieOrbitCS: new CoordinateSystem({
+                  name: "Euporie Orbit Coordinate System",
+                  origin: new Vec2([0.6, 0.0]),
+                  scale: new Vec2([1.0, 1.0]),
+                  orientation: 0.0,
+                  rotation_speed: 365 / -538 * earth_orbit_speed,
+                  children: {
+                    /* euporieOrbitCS -> euporieCS */
+                    euporieCS: new CoordinateSystem({
+                      name: "Euporie Coordinate System",
+                      origin: new Vec2([0.125, 0.0]),
+                      scale: new Vec2([0.0225, 0.0225]),
+                      orientation: 0.0,
+                      rotation_speed: 0.0,
+                      children: {
+                        /* jupiterOrbitCS -> junoOrbitCS */
+                        junoOrbitCS: new CoordinateSystem({
+                          name: "Juno Orbit Coordinate System",
+                          origin: new Vec2([0.0, 0.0]),
+                          scale: new Vec2([1.0, 1.0]),
+                          orientation: 0.0,
+                          rotation_speed: 365 / -36 * earth_orbit_speed,
+                          children: {
+                            /* junoOrbitCS -> junoCS */
+                            junoCS: new CoordinateSystem({
+                              name: "Juno Coordinate System",
+                              origin: new Vec2([0.925, 0.0]),
+                              scale: new Vec2([0.45, 0.95]),
+                              orientation: 0.0,
+                              rotation_speed: 0.0,
+                              children: {
+                              },
+                              shapes: {
+                                /* junoCS -> juno */
+                                juno: new UnitDisc(gl, shader, {
+                                  name: "Juno",
+                                  center: [0.0, 0.0],
+                                  radius: 0.5,
+                                  numVertices: 7,
+                                  color: [1.0, 1.0, 1.0, 1.0],
+                                  selectable: true
+                                }) // juno
+                              }
+                            }) // junoCS
+                          },
+                          shapes: false
+                        }) // junoOrbitCS
+                      },
+                      shapes: {
+                        /* euporieCS -> euporie */
+                        euporie: new UnitDisc(gl, shader, {
+                          name: "Euporie",
+                          center: [0.0, 0.0],
+                          radius: 0.5,
+                          numVertices: 7,
+                          color: [0.5, 0.5, 0.5, 1.0],
+                          selectable: true
+                        }) // euporie
+                      }
+                    }) // euporieCS
+                  },
+                  shapes: false
+                }) // euporieOrbitCS
+              },
+              shapes: false
+            }) // jupiterOrbitCS
           },
           shapes: false
         }) // solarSystemOrbitCS
       },
       shapes: false
     }); // rootCS
+
     console.log(rootCS);
+
     renderables.push(rootCS);
-    //selectables.push(rootCS.children.solarSystemCS.children.solCS.shapes.sun);
-    //selectables.push(rootCS.children.solarSystemCS.children.earthOrbitCS.children.earthCS.shapes.earth);
-    //selectables.push(rootCS.children.solarSystemCS.children.earthOrbitCS.children.moonOrbitCS.children.moonCS.shapes.moon);
+    selectables = rootCS.selectables(new Array());
   }
 
   /**
@@ -200,6 +430,21 @@ function main() {
   // set event handlers buttons
   document.getElementById("PauseButton").addEventListener("click", function () {
     console.log("PauseButton");
+    if (paused) {
+      paused = false;
+      lastTimestamp = null;
+      document.getElementById("PauseButton").innerHTML = "Pause";
+      requestAnimationFrame(repaint);
+    } else {
+      paused = true;
+      document.getElementById("PauseButton").innerHTML = "Play";
+    }
+  });
+
+  document.getElementById("SpeedRange").value = speed;
+  document.getElementById("SpeedRange").addEventListener("input", function () {
+    speed = document.getElementById("SpeedRange").value;
+    document.getElementById("SpeedRangeText").innerHTML = speed;
   });
 
   // Register function (event handler) to be called on a mouse press
@@ -219,18 +464,20 @@ function main() {
       // Student Note: remove this line once you get orbiting animation working
       //animation_test1(renderables, delta);
 
-      //rootCS.children.solarSystemCS.orientation = (rootCS.orientation + (15.0 * delta) / 1000.0) % 360;
-      rootCS.children.solarSystemCS.children.earthOrbitCS.orientation = (rootCS.children.solarSystemCS.children.earthOrbitCS.orientation + (45.0 * delta) / 1000.0) % 360;
-      //rootCS.children.solarSystemCS.children.earthOrbitCS.children.moonOrbitCS.orientation = (rootCS.children.solarSystemCS.children.earthOrbitCS.children.moonOrbitCS.orientation + (45.0 * delta) / 1000.0) % 360;
+      rootCS.animate(delta, speed);
 
       drawFrame(gl, renderables);
 
-
-      if (debug.showDelta)
+      if (debug.showDelta) {
         console.log("Delta: " + delta);
+      }
     }
+
     lastTimestamp = timestamp;
-    requestAnimationFrame(repaint);
+
+    if (paused == false) {
+      requestAnimationFrame(repaint);
+    }
   };
 
   requestAnimationFrame(repaint);
