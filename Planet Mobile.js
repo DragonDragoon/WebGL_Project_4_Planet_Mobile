@@ -21,8 +21,11 @@ var repaint;
 /* Added */
 var rootCS;
 var paused = false;
-var earth_orbit_speed = 10.0;
+var earth_orbit_speed = 5.0;
 var speed = 1.0;
+
+var num_asteroids = 10;
+var asteroid_belt_radius = 0.475;
 
 /*****
  * 
@@ -86,8 +89,6 @@ function main() {
   /* Added */
 
   var asteroids = {};
-  var num_asteroids = 4;
-  var asteroid_belt_radius = 0.475;
 
   for (var i = 0; i <= num_asteroids; i++) {
     var asteroid_shapes = {};
@@ -99,16 +100,16 @@ function main() {
       center: new Vec2([0.0, 0.0]),
       width: 1.0,
       height: 1.0,
-      color: [Math.random(), Math.random(), Math.random(), 1.0],
+      color: [Math.random() * (1.0 - 0.25) + 0.25, Math.random() * (1.0 - 0.25) + 0.25, Math.random() * (1.0 - 0.25) + 0.25, 1.0],
       selectable: true
     }) // asteroidX
     /* asteroidBeltOrbitCS -> asteroidXCS */
     asteroids["asteroid" + num_asteroid + "CS"] = new CoordinateSystem({
       name: "Asteroid " + num_asteroid + " Coordinate System",
       origin: new Vec2([0.0 + asteroid_belt_radius * Math.sin(angle), 0.0 + asteroid_belt_radius * Math.cos(angle)]),
-      scale: new Vec2([0.06 * Math.random(), 0.06 * Math.random()]),
+      scale: new Vec2([Math.random() * (0.06 - 0.01) + 0.01, Math.random() * (0.06 - 0.01) + 0.01]),
       orientation: 360 * Math.random(),
-      rotation_speed: Math.random() * (90 - -90) + -90,
+      rotation_speed: Math.random() * (90.0 - -90.0) + -90.0,
       children: false,
       shapes: asteroid_shapes
     }) // asteroidXCS
@@ -558,10 +559,19 @@ function handleMouseDown(ev, gl, canvas, renderables) {
               "  GUI: " + ev.clientX + ", " + ev.clientY + "\n" +
               "  NDC: " + x + ", " + y);
 
-  // \todo test all Shape objects for selection using their point_inside method's    
+  // \todo test all Shape objects for selection using their point_inside method's
+  var selected = false;
   selectables.forEach(function (shape) {
-    console.log(shape.point_inside(new Vec2([x, y])));
+    if (shape.point_inside(new Vec2([x, y]))) {
+      selected = shape;
+    }
   });
+
+  if (selected) {
+    console.log("User selected: " + selected.name);
+  } else {
+    console.log("User did not select anything.");
+  }
 
   requestAnimationFrame(repaint);
 }
