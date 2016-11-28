@@ -239,16 +239,25 @@ CoordinateRenderable.prototype = Object.create(Renderable.prototype);
  * 
  * Details of this class are described in the assignment description.
 */
-var CoordinateSystem = function () {
+var CoordinateSystem = function (transform) {
   CoordinateRenderable.call(this);
-  this.origin = new Vec2();
-  this.scale = new Vec2([1, 1]);
-  this.orientation = 0.0;
+  this.name = (transform && typeof transform.name == "string") ? transform.name : null;
+  this.origin = (transform && transform.origin instanceof Vec2) ? transform.origin : new Vec2([0.0, 0.0]);
+  this.scale = (transform && transform.scale instanceof Vec2) ? transform.scale : new Vec2([1.0, 1.0]);
+  this.orientation = (transform && typeof transform.orientation == "number") ? transform.orientation : 0.0;
 
   /* \todo add code as need to implement CoordinateSystem class */
-  this.parent = null;
-  this.children = new Array();
-  this.shapes = new Array();
+  this.children = (transform && transform.children instanceof Object) ? transform.children : new Array();
+  this.shapes = (transform && transform.shapes instanceof Object) ? transform.shapes : new Array();
+
+  var self = this;
+  Object.keys(self.children).forEach(function (key) {
+    self.children[key].parent = self;
+  });
+
+  Object.keys(self.shapes).forEach(function (key) {
+    self.shapes[key].parent = self;
+  });
 };
 CoordinateSystem.prototype = Object.create(CoordinateRenderable.prototype);
 
@@ -305,7 +314,7 @@ CoordinateSystem.prototype.world_x_local = function () {
   if (this.parent == null) {
     return this.parent_x_local();
   } else {
-    return this.parent_x_local() * this.parent.world_x_local();
+    return this.parent_x_local().multiply(this.parent.world_x_local());
   }
 };
 
@@ -323,7 +332,7 @@ CoordinateSystem.prototype.local_x_world = function () {
   if (this.parent == null) {
     return this.local_x_parent();
   } else {
-    return this.local_x_parent() * this.parent.local_x_parent();
+    return this.local_x_parent().multiply(this.parent.local_x_parent());
   }
 };
 
@@ -335,13 +344,16 @@ CoordinateSystem.prototype.render = function () {
   /* \todo implement */
   modelViewStack.push();
   modelViewStack.transform(this.parent_x_local());
+  //console.log("Origin: [" + this.origin.x + ", " + this.origin.y + "], Scale: [" + this.scale.x + ", " + this.scale.y + "], Rotation: " + this.orientation);
 
-  this.children.forEach(function (child) {
-    child.render();
+  var children = this.children;
+  Object.keys(children).forEach(function (key) {
+    children[key].render();
   });
 
-  this.shapes.forEach(function (shape) {
-    shape.render();
+  var shapes = this.shapes;
+  Object.keys(shapes).forEach(function (key) {
+    shapes[key].render();
   });
 
   modelViewStack.pop();
@@ -365,14 +377,24 @@ CoordinateSystem.prototype.add_shape = function (shape) {
 CoordinateSystem.prototype.add_child = function (child) {
   /* \todo implement */
   this.children.push(child);
-  child.set_parent(this);
-};
-
-CoordinateSystem.prototype.set_parent = function (par) {
-  this.parent = par;
+  child.parent = this;
 };
 
 /* \todo add other CoordinateSystem methods as needed */
+CoordinateSystem.prototype.set_parent = function (par) {
+  this.parent = par;
+  par.children.push(this);
+};
+
+CoordinateSystem.prototype.transform = function (transform) {
+  this.origin = (transform && transform.origin instanceof Array && transform.origin.length == 2) ? transform.origin : this.origin;
+  this.scale = (transform && transform.scale instanceof Array && transform.scale.length == 2) ? transform.scale : this.scale;
+  this.orientation = (transform && typeof transform.orientation == "number") ? transform.orientation : this.orientation;
+};
+
+CoordinateSystem.prototype.toString = function () {
+  return "CoordinateSystem";
+};
 
 /* @author Zachary Wartell && ...
  * Constructor new Shape Object
@@ -400,6 +422,14 @@ Shape.prototype.point_inside = function (point_wcs) {
 };
 
 /* \todo add Shape methods if needed */
+Shape.prototype.set_parent = function (par) {
+  this.parent = par;
+  par.shapes.push(this);
+};
+
+Shape.prototype.toString = function () {
+  return "Shape";
+}
 
 /* @author Zachary Wartell && ...
  * Constructor new UnitSquare Object
@@ -451,12 +481,13 @@ UnitSquare.prototype.point_inside = function (point_wcs) {
 /**
  * Unit Disc
  */
-var UnitDisc = function (gl, shader) {
+var UnitDisc = function (gl, shader, transform) {
   Shape.call(this);
 
-  var center = [0.0, 0.0];
-  var radius = 0.5;
-  var numVertices = 45;
+  var center = (transform && transform.center instanceof Array && transform.center.length == 2) ? transform.center : [0.0, 0.0];
+  var radius = (transform && typeof transform.radius == "number") ? transform.radius : 0.5;
+  var numVertices = (transform && typeof transform.numVertices == "number") ? transform.numVertices : 45;
+  this.name = (transform && typeof transform.name == "string") ? transform.name : null;
 
   this.renderable = new SimpleRenderable(shader);
   this.renderable.primitive = gl.TRIANGLE_FAN;
@@ -468,7 +499,7 @@ var UnitDisc = function (gl, shader) {
   }
 
   this.renderable.updateBuffers();
-  this.renderable.color.set([1.0, 1.0, 1.0, 1.0]);
+  this.renderable.color.set((transform && transform.color instanceof Array && transform.color.length == 4) ? transform.color : [1.0, 1.0, 1.0, 1.0]);
 };
 UnitDisc.prototype = Object.create(Shape.prototype);
 

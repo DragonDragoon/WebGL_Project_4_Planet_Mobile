@@ -18,6 +18,9 @@ var lastTimestamp = null;
 var debug = { showDelta: false };
 var repaint;
 
+/* Added */
+var rootCS;
+
 /*****
  * 
  * MAIN
@@ -68,13 +71,116 @@ function main() {
   if (0) {
     CoordinateSystem_test2(renderables, shader, gl);
   }
-  if (1) {
+  if (0) {
     UnitDisc_test(renderables, shader, gl);
   }
 
-  var skeleton = true;
+  var skeleton = false;
   if (skeleton) {
     document.getElementById("App_Title").innerHTML += "-Skeleton";
+  }
+
+  /* Added */
+  /* rootCS */
+  var main = true;
+  if (main) {
+    rootCS = new CoordinateSystem({
+      name: "Root Coordinate System",
+      origin: new Vec2([0.0, 0.0]),
+      scale: new Vec2([1.0, 1.0]),
+      orientation: 0.0,
+      children: {
+        solarSystemCS: new CoordinateSystem({
+          name: "Solar System Coordinate System",
+          origin: new Vec2([0.0, 0.0]),
+          scale: new Vec2([1.0, 1.0]),
+          orientation: 0.0,
+          children: {
+            /* solarSystemCS -> solCS */
+            solCS: new CoordinateSystem({
+              name: "Sol Coordinate System",
+              origin: new Vec2([0.0, 0.0]),
+              scale: new Vec2([0.25, 0.25]),
+              orientation: 0.0,
+              children: false,
+              shapes: {
+                /* sunCS -> sun */
+                sun: new UnitDisc(gl, shader, {
+                  name: "Sol",
+                  center: [0.0, 0.0],
+                  radius: 0.5,
+                  numVertices: 7,
+                  color: [1.0, 1.0, 0.0, 1.0]
+                })
+              }
+            }),
+            /* solarSystemCS -> earthOrbitCS */
+            earthOrbitCS: new CoordinateSystem({
+              name: "Earth Orbit Coordinate System",
+              origin: new Vec2([0.0, 0.0]),
+              scale: new Vec2([1.0, 1.0]),
+              orientation: 0.0,
+              children: {
+                /* earthOrbitCS -> earthCS */
+                earthCS: new CoordinateSystem({
+                  name: "Earth Coordinate System",
+                  origin: new Vec2([0.5, 0.0]),
+                  scale: new Vec2([0.125, 0.125]),
+                  orientation: 0.0,
+                  children: false,
+                  shapes: {
+                    /* earthCS -> earth */
+                    earth: new UnitDisc(gl, shader, {
+                      name: "Earth",
+                      center: [0.0, 0.0],
+                      radius: 0.5,
+                      numVertices: 7,
+                      color: [0.0, 0.0, 1.0, 1.0]
+                    }) // earth
+                  }
+                }), // earthCS
+                /* earthOrbitCS -> moonOrbitCS */
+                moonOrbitCS: new CoordinateSystem({
+                  name: "Moon Orbit Coordinate System",
+                  origin: new Vec2([0.5, 0.0]),
+                  scale: new Vec2([1.0, 1.0]),
+                  orientation: 0.0,
+                  children: {
+                    /* moonOrbitCS -> moonCS */
+                    moonCS: new CoordinateSystem({
+                      name: "Moon Coordinate System",
+                      origin: new Vec2([0.125, 0.0]),
+                      scale: new Vec2([0.0625, 0.0625]),
+                      orientation: 0.0,
+                      children: false,
+                      shapes: {
+                        /* moonCS -> moon */
+                        moon: new UnitDisc(gl, shader, {
+                          name: "Moon",
+                          center: [0.0, 0.0],
+                          radius: 0.5,
+                          numVertices: 7,
+                          color: [0.5, 0.5, 0.5, 1.0]
+                        }) // moon
+                      }
+                    }) // moonCS
+                  },
+                  shapes: false
+                }) // moonOrbitCS
+              },
+              shapes: false
+            }) // earthOrbitCS
+          },
+          shapes: false
+        }) // solarSystemOrbitCS
+      },
+      shapes: false
+    }); // rootCS
+    console.log(rootCS);
+    renderables.push(rootCS);
+    //selectables.push(rootCS.children.solarSystemCS.children.solCS.shapes.sun);
+    //selectables.push(rootCS.children.solarSystemCS.children.earthOrbitCS.children.earthCS.shapes.earth);
+    //selectables.push(rootCS.children.solarSystemCS.children.earthOrbitCS.children.moonOrbitCS.children.moonCS.shapes.moon);
   }
 
   /**
@@ -92,18 +198,14 @@ function main() {
    **  See https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    **/
   // set event handlers buttons
-  document.getElementById("PauseButton").addEventListener(
-          "click",
-          function () {
-            console.log("PauseButton");
-          });
+  document.getElementById("PauseButton").addEventListener("click", function () {
+    console.log("PauseButton");
+  });
 
   // Register function (event handler) to be called on a mouse press
-  canvas.addEventListener(
-          "mousedown",
-          function (ev) {
-            handleMouseDown(ev, gl, canvas, renderables);
-          });
+  canvas.addEventListener("mousedown", function (ev) {
+    handleMouseDown(ev, gl, canvas, renderables);
+  });
 
 
   /**
@@ -111,12 +213,15 @@ function main() {
    **/
   repaint = function (timestamp) {
     if (lastTimestamp !== null) {
-      var
-          delta = timestamp - lastTimestamp;
+      var delta = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
 
       // Student Note: remove this line once you get orbiting animation working
-      animation_test1(renderables, delta);
+      //animation_test1(renderables, delta);
+
+      //rootCS.children.solarSystemCS.orientation = (rootCS.orientation + (15.0 * delta) / 1000.0) % 360;
+      rootCS.children.solarSystemCS.children.earthOrbitCS.orientation = (rootCS.children.solarSystemCS.children.earthOrbitCS.orientation + (45.0 * delta) / 1000.0) % 360;
+      //rootCS.children.solarSystemCS.children.earthOrbitCS.children.moonOrbitCS.orientation = (rootCS.children.solarSystemCS.children.earthOrbitCS.children.moonOrbitCS.orientation + (45.0 * delta) / 1000.0) % 360;
 
       drawFrame(gl, renderables);
 
