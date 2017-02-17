@@ -343,6 +343,9 @@ CoordinateSystem.prototype.local_x_world = function () {
 CoordinateSystem.prototype.render = function () {
   /* \todo implement */
   modelViewStack.push();
+  //modelViewStack.translate([this.origin.x, this.origin.y]);
+  //modelViewStack.rotate(this.orientation);
+  //modelViewStack.scale([this.scale.x, this.scale.y]);
   modelViewStack.transform(this.parent_x_local());
   //console.log("Origin: [" + this.origin.x + ", " + this.origin.y + "], Scale: [" + this.scale.x + ", " + this.scale.y + "], Rotation: " + this.orientation);
 
